@@ -48,8 +48,8 @@ const autoCaption = async ({
         repeatPenalty,
       ];
 
-      socket.onmessage = function (event ) {
-        const ev = event as { data: string }
+      socket.onmessage = function (event) {
+        const ev = event as { data: string };
         if (JSON.parse(ev.data).msg === "send_hash") {
           socket.send(
             JSON.stringify({ session_hash: sessionHash, fn_index: 0 })
@@ -58,7 +58,11 @@ const autoCaption = async ({
 
         if (JSON.parse(ev.data).msg === "send_data") {
           socket.send(
-            JSON.stringify({ data, session_hash: sessionHash, fn_index: 0 })
+            JSON.stringify({
+              data: data,
+              session_hash: sessionHash,
+              fn_index: 0,
+            })
           );
         }
 
@@ -82,12 +86,15 @@ const autoCaption = async ({
         "XI-API-KEY": ELEVENLABS,
         "Content-Type": "application/json",
       },
-      body: `{"text": ${response},"voice_settings":{"stability":0,"similarity_boost":0}}`,
+      body: `{"text": "${response}","voice_settings":{"stability":0,"similarity_boost":0}}`,
     };
 
     const audioResponse = await fetch(url, options);
 
+    console.log(audioResponse);
     const audioBlob = await audioResponse.blob();
+
+    console.log(audioBlob);
 
     result = {
       state: "successful",
