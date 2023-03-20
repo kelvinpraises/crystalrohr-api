@@ -1,4 +1,5 @@
-const W3CWebSocket = require("websocket").w3cwebsocket;
+import pkg from "websocket";
+const { w3cwebsocket: W3CWebSocket } = pkg;
 
 /**
  * Gets the captions from Hugginface server
@@ -49,21 +50,23 @@ const queryScene = async ({
         null,
       ];
 
-      socket.onmessage = function (event: { data: string }) {
-        if (JSON.parse(event.data).msg === "send_hash") {
+      socket.onmessage = function (event) {
+        const ev = event as { data: string };
+
+        if (JSON.parse(ev.data).msg === "send_hash") {
           socket.send(
             JSON.stringify({ session_hash: sessionHash, fn_index: 3 })
           );
         }
 
-        if (JSON.parse(event.data).msg === "send_data") {
+        if (JSON.parse(ev.data).msg === "send_data") {
           socket.send(
             JSON.stringify({ data, session_hash: sessionHash, fn_index: 3 })
           );
         }
 
-        if (JSON.parse(event.data).msg === "process_completed") {
-          resolve(JSON.parse(event.data).output);
+        if (JSON.parse(ev.data).msg === "process_completed") {
+          resolve(JSON.parse(ev.data).output);
         }
       };
 
