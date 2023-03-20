@@ -18,7 +18,13 @@ declare const autoCaption: ({ base64Image, sessionHash, textDecodeMethod, temper
     state: string;
     data: {
         status: boolean;
-        msg: unknown;
+        msg: Blob;
+    };
+} | {
+    state: string;
+    data: {
+        status: boolean;
+        msg: string;
     };
 }>;
 export default autoCaption;

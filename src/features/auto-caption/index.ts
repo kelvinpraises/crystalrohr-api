@@ -10,7 +10,11 @@ export default async (req: Request, res: Response) => {
 
   switch (result.state) {
     case results.success:
-      responseHandler({ res, status: 200, data: result.data });
+      //handle audio blob
+      const blob = result.data.msg as Blob;
+      const buf = await blob.arrayBuffer();
+
+      res.type(blob.type).send(Buffer.from(buf));
       break;
 
     case results.failed:

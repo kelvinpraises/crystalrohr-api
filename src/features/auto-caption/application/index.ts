@@ -1,4 +1,7 @@
 const W3CWebSocket = require("websocket").w3cwebsocket;
+import fetch from "node-fetch";
+
+const ELEVENLABS = process.env.ELEVENLABS || "";
 
 /**
  * Gets the captions from Hugginface server
@@ -58,7 +61,7 @@ const autoCaption = async ({
         }
 
         if (JSON.parse(event.data).msg === "process_completed") {
-          resolve(JSON.parse(event.data).output);
+          resolve(JSON.parse(event.data).output.data[0]);
         }
       };
 
@@ -66,11 +69,29 @@ const autoCaption = async ({
         console.log("echo-protocol Client Closed");
       };
     });
+
+    let url =
+      "https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL";
+
+    let options = {
+      method: "POST",
+      headers: {
+        Accept: "audio/mpeg",
+        "XI-API-KEY": ELEVENLABS,
+        "Content-Type": "application/json",
+      },
+      body: `{"text": ${response},"voice_settings":{"stability":0,"similarity_boost":0}}`,
+    };
+
+    const audioResponse = await fetch(url, options);
+
+    const audioBlob = await audioResponse.blob();
+
     result = {
       state: "successful",
       data: {
         status: true,
-        msg: response,
+        msg: audioBlob,
       },
     };
   } catch (error) {
