@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "deploys models to a ceramic node.",
   "scripts": {
-    "build": "yarn tsc",
+    "build": "npm run tsc",
+    "tsc": "tsc",
     "start": "node lib/index.js",
-    "dev": "concurrently \"yarn tsc --watch\" \"nodemon -q lib/index.js\""
+    "dev": "concurrently \"npm run tsc --watch\" \"nodemon -q lib/index.js\""
   },
   "type": "module",
   "dependencies": {
