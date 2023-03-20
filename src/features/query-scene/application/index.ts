@@ -3,14 +3,16 @@ const W3CWebSocket = require("websocket").w3cwebsocket;
 /**
  * Gets the captions from Hugginface server
  * @param {string} options.base64Image Image to run inference on
+ * @param {string} options.question Question
  * @param {string} options.sessionHash Unique Id to track caller questions
  * @param {string} options.textDecodeMethod Text Decoding Method
  * @param {number} options.temperature Temperature (used with nucleus sampling) max 1
  * @param {number} options.lengthPenalty Length Penalty (set to larger for longer sequence, used with beam search) max 2
  * @param {number} options.repeatPenalty Repeat Penalty (larger value prevents repetition) max 5
  */
-const autoCaption = async ({
+const queryScene = async ({
   base64Image,
+  question,
   sessionHash,
   textDecodeMethod = "Beam search",
   temperature = 1,
@@ -18,6 +20,7 @@ const autoCaption = async ({
   repeatPenalty = 1.5,
 }: {
   base64Image: string;
+  question: string;
   sessionHash: string;
   textDecodeMethod?: string;
   temperature?: number;
@@ -38,22 +41,24 @@ const autoCaption = async ({
 
       const data = [
         base64Image,
+        question,
         textDecodeMethod,
         temperature,
         lengthPenalty,
         repeatPenalty,
+        null,
       ];
 
       socket.onmessage = function (event: { data: string }) {
         if (JSON.parse(event.data).msg === "send_hash") {
           socket.send(
-            JSON.stringify({ session_hash: sessionHash, fn_index: 0 })
+            JSON.stringify({ session_hash: sessionHash, fn_index: 3 })
           );
         }
 
         if (JSON.parse(event.data).msg === "send_data") {
           socket.send(
-            JSON.stringify({ data, session_hash: sessionHash, fn_index: 0 })
+            JSON.stringify({ data, session_hash: sessionHash, fn_index: 3 })
           );
         }
 
@@ -86,4 +91,4 @@ const autoCaption = async ({
   return result;
 };
 
-export default autoCaption;
+export default queryScene;

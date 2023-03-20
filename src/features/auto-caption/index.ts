@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { errors, results } from "../../utils/enums.js";
 import responseHandler from "../../utils/response-handler.js";
-import getBookmarks from "./application/index.js";
+import autoCaption from "./application/index.js";
 
 export default async (req: Request, res: Response) => {
-  const { tag } = req.body;
+  const { base64Image, sessionHash } = req.body;
 
-  const result = await getBookmarks({ tag });
+  const result = await autoCaption({ base64Image, sessionHash });
 
   switch (result.state) {
     case results.success:
@@ -22,19 +22,3 @@ export default async (req: Request, res: Response) => {
       break;
   }
 };
-
-// result = {
-//   state: "failed",
-//   data: {
-//     status: false,
-//     msg: "An error occurred.",
-//   },
-// };
-
-// result = {
-//   state: "successful",
-//   data: {
-//     status: true,
-//     msg: bookmarks,
-//   },
-// };
