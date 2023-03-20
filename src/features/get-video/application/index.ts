@@ -50,7 +50,7 @@ const getVideo = async (videoId: string) => {
 
   try {
     const res = await fetch(url, options);
-    const json = res.json();
+    const json = await res.json();
 
     result = {
       state: "successful",
