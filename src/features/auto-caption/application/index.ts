@@ -1,100 +1,71 @@
+import fetch from "node-fetch";
 import pkg from "websocket";
 const { w3cwebsocket: W3CWebSocket } = pkg;
-import fetch from "node-fetch";
 
-const ELEVENLABS = process.env.ELEVENLABS || "";
+const ELEVENLABS_PAT = process.env.ELEVENLABS_PAT || "";
+const CLARIFAI_PAT = process.env.CLARIFAI_PAT || "";
 
-/**
- * Gets the captions from Hugginface server
- * @param {string} options.base64Image Image to run inference on
- * @param {string} options.sessionHash Unique Id to track caller questions
- * @param {string} options.textDecodeMethod Text Decoding Method
- * @param {number} options.temperature Temperature (used with nucleus sampling) max 1
- * @param {number} options.lengthPenalty Length Penalty (set to larger for longer sequence, used with beam search) max 2
- * @param {number} options.repeatPenalty Repeat Penalty (larger value prevents repetition) max 5
- */
-const autoCaption = async ({
-  base64Image,
-  sessionHash,
-  textDecodeMethod = "Beam search",
-  temperature = 1,
-  lengthPenalty = 1,
-  repeatPenalty = 1.5,
-}: {
-  base64Image: string;
-  sessionHash: string;
-  textDecodeMethod?: string;
-  temperature?: number;
-  lengthPenalty?: number;
-  repeatPenalty?: number;
-}) => {
+const USER_ID = process.env.USER_ID || "clarifai";
+const APP_ID = process.env.APP_ID || "main";
+const MODEL_ID = process.env.MODEL_ID || "general-english-image-caption-clip";
+const MODEL_VERSION_ID =
+  process.env.MODEL_VERSION_ID || "2489aad78abf4b39a128fbbc64a8830c";
+
+const autoCaption = async (imageUrl: string) => {
   let result;
 
   try {
-    const response = await new Promise((resolve) => {
-      const socket = new W3CWebSocket(
-        "wss://salesforce-blip2.hf.space/queue/join"
-      );
-
-      socket.onopen = function () {
-        console.log("[open] Connection established");
-      };
-
-      const data = [
-        base64Image,
-        textDecodeMethod,
-        temperature,
-        lengthPenalty,
-        repeatPenalty,
-      ];
-
-      socket.onmessage = function (event) {
-        const ev = event as { data: string };
-        if (JSON.parse(ev.data).msg === "send_hash") {
-          socket.send(
-            JSON.stringify({ session_hash: sessionHash, fn_index: 0 })
-          );
-        }
-
-        if (JSON.parse(ev.data).msg === "send_data") {
-          socket.send(
-            JSON.stringify({
-              data: data,
-              session_hash: sessionHash,
-              fn_index: 0,
-            })
-          );
-        }
-
-        if (JSON.parse(ev.data).msg === "process_completed") {
-          resolve(JSON.parse(ev.data).output.data[0]);
-        }
-      };
-
-      socket.onclose = function () {
-        console.log("echo-protocol Client Closed");
-      };
+    const raw = JSON.stringify({
+      user_app_id: {
+        user_id: USER_ID,
+        app_id: APP_ID,
+      },
+      inputs: [
+        {
+          data: {
+            image: {
+              url: imageUrl,
+            },
+          },
+        },
+      ],
     });
 
-    let url =
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: "Key " + CLARIFAI_PAT,
+      },
+      body: raw,
+    };
+
+    const url = `https://api.clarifai.com/v2/models/${MODEL_ID}/versions/${MODEL_VERSION_ID}/outputs`;
+
+    const image2txtResponse = (await (
+      await fetch(url, requestOptions)
+    ).json()) as any;
+
+    if (image2txtResponse?.status.description === "Failure") {
+      throw new Error("an error occurred");
+    }
+
+    let url2 =
       "https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL";
 
     let options = {
       method: "POST",
       headers: {
         Accept: "audio/mpeg",
-        "XI-API-KEY": ELEVENLABS,
+        "XI-API-KEY": ELEVENLABS_PAT,
         "Content-Type": "application/json",
       },
-      body: `{"text": "${response}","voice_settings":{"stability":0,"similarity_boost":0}}`,
+      body: `{"text": "${image2txtResponse}","voice_settings":{"stability":0,"similarity_boost":0}}`,
     };
 
-    const audioResponse = await fetch(url, options);
+    const audioResponse = await fetch(url2, options);
 
-    console.log(audioResponse);
     const audioBlob = await audioResponse.blob();
-
-    console.log(audioBlob);
 
     result = {
       state: "successful",
