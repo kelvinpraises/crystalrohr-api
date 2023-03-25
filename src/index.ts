@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import express from "express";
 import autoCaption from "./features/auto-caption/index.js";
 import getVideo from "./features/get-video/index.js";
-import queryScene from "./features/query-scene/index.js";
 import { handleError } from "./utils/middleware.js";
 
 dotenv.config();
