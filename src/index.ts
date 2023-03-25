@@ -33,8 +33,9 @@ app.post("/api/get-video", async (req, res) => {
 });
 
 /// Gets a list of images linked to the tag
-app.post("/api/query-scene", async (req, res) => {
-  await queryScene(req, res);
+app.post("/api/query-scene", async (_req, res) => {
+  res.sendStatus(400);
+  // await queryScene(req, res);
 });
 
 /// Returns relevant server stats and logs.
