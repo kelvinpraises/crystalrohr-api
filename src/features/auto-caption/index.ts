@@ -4,9 +4,9 @@ import responseHandler from "../../utils/response-handler.js";
 import autoCaption from "./application/index.js";
 
 export default async (req: Request, res: Response) => {
-  const { base64Image, sessionHash } = req.body;
+  const { imageUrl } = req.body;
 
-  const result = await autoCaption({ base64Image, sessionHash });
+  const result = await autoCaption(imageUrl);
 
   switch (result.state) {
     case results.success:

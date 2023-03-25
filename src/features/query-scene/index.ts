@@ -3,26 +3,8 @@ import { errors, results } from "../../utils/enums.js";
 import responseHandler from "../../utils/response-handler.js";
 import getVideo from "./application/index.js";
 
-export default async (req: Request, res: Response) => {
-  const {
-    base64Image,
-    question,
-    sessionHash,
-    textDecodeMethod,
-    temperature,
-    lengthPenalty,
-    repeatPenalty,
-  } = req.body;
-
-  const result = await getVideo({
-    base64Image,
-    question,
-    sessionHash,
-    textDecodeMethod,
-    temperature,
-    lengthPenalty,
-    repeatPenalty,
-  });
+export default async (_req: Request, res: Response) => {
+  const result = await getVideo();
 
   switch (result.state) {
     case results.success:
