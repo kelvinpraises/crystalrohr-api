@@ -1,6 +1,4 @@
 import fetch from "node-fetch";
-import pkg from "websocket";
-const { w3cwebsocket: W3CWebSocket } = pkg;
 
 const ELEVENLABS_PAT = process.env.ELEVENLABS_PAT || "";
 const CLARIFAI_PAT = process.env.CLARIFAI_PAT || "";
