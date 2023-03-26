@@ -58,7 +58,7 @@ const autoCaption = async (imageUrl: string) => {
         "XI-API-KEY": ELEVENLABS_PAT,
         "Content-Type": "application/json",
       },
-      body: `{"text": "${image2txtResponse}","voice_settings":{"stability":0,"similarity_boost":0}}`,
+      body: `{"text": "${image2txtResponse.outputs[0].data.text.raw}","voice_settings":{"stability":0,"similarity_boost":0}}`,
     };
 
     const audioResponse = await fetch(url2, options);
